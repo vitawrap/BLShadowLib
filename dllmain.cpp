@@ -10,17 +10,7 @@
 volatile DWORD gMaskVariable = SHADOWMASK;
 
 void patchShadows() {
-    /*
-    // Patch the dword
-    DWORD oldProtection;
-    VirtualProtect((LPVOID)(imageBase + SMSHADOWMASK_PTR), 4, PAGE_EXECUTE_READWRITE, &oldProtection);
 
-    DWORD mask = SHADOWMASK;
-    SIZE_T bwritten = 0;
-    WriteProcessMemory(GetCurrentProcess(), (LPVOID)SMSHADOWMASK_PTR, &mask, 4, &bwritten);
-
-    VirtualProtect((LPVOID)(imageBase + SMSHADOWMASK_PTR), 4, oldProtection, &oldProtection);
-    */
     Con::addVariable("$Shadow::Mask", TypeS32, (LPVOID)&gMaskVariable);
 
     BL::write(SMSHADOWMASK_PTR, &gMaskVariable);
