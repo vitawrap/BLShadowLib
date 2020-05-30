@@ -35,16 +35,25 @@ template<typename T> SIZE_T BL::write(DWORD address, T const* data) {
 #define BL_DEFINE_FUNCTION(name, addr) name##Proc name = (name##Proc)(BL::imageBase + (DWORD)(addr))
 #define BL_DEFINE_FUNCTION(ns, name, addr) ns::name##Proc ns::name = (ns::name##Proc)(BL::imageBase + (DWORD)(addr))
 
-#define TypeS32		4
-#define TypeBool	6
-#define TypeF32		8
+#define TypeS32			4
+#define TypeBool		6
+#define TypeF32			8
+#define TypeString		10
+#define TypeCaseString	11
 
 // Known BL functions
 BL_DECLARE_NAMESPACE(Con) {
 	BL_DECLARE_FUNCTION(VOID, setVariable, (LPCSTR name, LPCSTR value));
 	BL_DECLARE_FUNCTION(BOOL, addVariable, (LPCSTR name, INT32 t, LPVOID dp));
+	BL_DECLARE_FUNCTION(LPCSTR, evaluate, (LPCSTR string, BOOL echo, LPCSTR fileName));
 	BL_DECLARE_FUNCTION(VOID, printf, (LPCSTR fmt, ...));
 	BL_DECLARE_FUNCTION(VOID, errorf, (LPCSTR fmt, ...));
+}
+
+typedef LPVOID LPSimObject;
+
+BL_DECLARE_NAMESPACE(Sim) {
+	BL_DECLARE_FUNCTION(LPSimObject, findObject, (LPCSTR name));
 }
 
 #endif //_BLV20INTRN_H

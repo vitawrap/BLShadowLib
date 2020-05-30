@@ -11,7 +11,7 @@ volatile DWORD gMaskVariable = SHADOWMASK;
 
 void patchShadows() {
 
-    Con::addVariable("$Shadow::Mask", TypeS32, (LPVOID)SMSHADOWMASK_PTR);
+    Con::addVariable("$Pref::Client::ShadowMask", TypeS32, (LPVOID)SMSHADOWMASK_PTR);
     BL::write(SMSHADOWMASK_PTR, &gMaskVariable);
 }
 
