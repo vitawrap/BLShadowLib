@@ -9,6 +9,11 @@
 
 volatile DWORD gMaskVariable = SHADOWMASK;
 
+ConsoleFunction(sendFunnyMessage, void, 2, 2, "(string message)") {
+    argc;
+    Con::printf(argv[1]);
+}
+
 void patchShadows() {
 
     Con::addVariable("$Pref::Client::ShadowMask", TypeS32, (LPVOID)(BL::imageBase + SMSHADOWMASK_PTR));
