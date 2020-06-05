@@ -1,16 +1,26 @@
 
 #include "blv20intrn.h"
 
+/*
 DWORD BL::imageBase = 0;
 
-void BL::init(HMODULE process) {
+void BL::init(HMODULE module) {
     //Retrieve information about the module
     MODULEINFO info;
-    GetModuleInformation(GetCurrentProcess(), process, &info, sizeof(MODULEINFO));
+    GetModuleInformation(GetCurrentProcess(), module, &info, sizeof(MODULEINFO));
 
     //Store relevant information
     imageBase = (DWORD)info.lpBaseOfDll;
 }
+
+LPVOID BL::alloc(SIZE_T size) {
+    return VirtualAllocEx(GetCurrentProcess(), NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+}
+
+bool BL::free(LPVOID ptr) {
+    return VirtualFreeEx(GetCurrentProcess(), ptr, 0, MEM_RELEASE);
+}
+*/
 
 // Known BL functions (defines)
 // (Using fixed addresses because this version of the game allows me to...)
@@ -21,23 +31,60 @@ BL_DEFINE_NS_FUNCTION(Con, printf,         0x004d35d0);
 BL_DEFINE_NS_FUNCTION(Con, errorf,         0x004d3610);
 BL_DEFINE_NS_FUNCTION(Sim, findObject,     0x004e13e0);
 
-BL_DEFINE_FUNCTION(ConsoleConstructorS, 0x004d2140);
-BL_DEFINE_FUNCTION(ConsoleConstructorI, 0x004d2190);
-BL_DEFINE_FUNCTION(ConsoleConstructorF, 0x004d21e0);
-BL_DEFINE_FUNCTION(ConsoleConstructorV, 0x004d2230);
-BL_DEFINE_FUNCTION(ConsoleConstructorB, 0x004d2280);
+BL_DEFINE_NS_FUNCTION(Con, addCommandS, 0x004d9190);
+BL_DEFINE_NS_FUNCTION(Con, addCommandI, 0x004d91e0);
+BL_DEFINE_NS_FUNCTION(Con, addCommandF, 0x004d9280);
+BL_DEFINE_NS_FUNCTION(Con, addCommandV, 0x004d9230);
+BL_DEFINE_NS_FUNCTION(Con, addCommandB, 0x004d92d0);
 
-ConsoleConstructorProxy::ConsoleConstructorProxy(LPCSTR className, LPCSTR funcName, StringCallback	sfunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
-{ConsoleConstructorS(this, className, funcName, sfunc, usage, minArgs, maxArgs);}
+// First make a fancy overload
+VOID Con::addCommand(LPCSTR className, LPCSTR funcName, StringCallback	sfunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandS(className, funcName, sfunc, usage, minArgs, maxArgs);
+}
 
-ConsoleConstructorProxy::ConsoleConstructorProxy(LPCSTR className, LPCSTR funcName, IntCallback		ifunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
-{ConsoleConstructorI(this, className, funcName, ifunc, usage, minArgs, maxArgs);}
+VOID Con::addCommand(LPCSTR className, LPCSTR funcName, IntCallback		ifunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandI(className, funcName, ifunc, usage, minArgs, maxArgs);
+}
 
-ConsoleConstructorProxy::ConsoleConstructorProxy(LPCSTR className, LPCSTR funcName, FloatCallback	ffunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
-{ConsoleConstructorF(this, className, funcName, ffunc, usage, minArgs, maxArgs);}
+VOID Con::addCommand(LPCSTR className, LPCSTR funcName, FloatCallback	ffunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandF(className, funcName, ffunc, usage, minArgs, maxArgs);
+}
 
-ConsoleConstructorProxy::ConsoleConstructorProxy(LPCSTR className, LPCSTR funcName, VoidCallback	vfunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
-{ConsoleConstructorV(this, className, funcName, vfunc, usage, minArgs, maxArgs);}
+VOID Con::addCommand(LPCSTR className, LPCSTR funcName, VoidCallback	vfunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandV(className, funcName, vfunc, usage, minArgs, maxArgs);
+}
 
-ConsoleConstructorProxy::ConsoleConstructorProxy(LPCSTR className, LPCSTR funcName, BoolCallback	bfunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
-{ConsoleConstructorB(this, className, funcName, bfunc, usage, minArgs, maxArgs);}
+VOID Con::addCommand(LPCSTR className, LPCSTR funcName, BoolCallback	bfunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandB(className, funcName, bfunc, usage, minArgs, maxArgs);
+}
+
+// Make a fancy static constructor overload too
+ConsoleConstructor::ConsoleConstructor(LPCSTR className, LPCSTR funcName, StringCallback	sfunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandS(className, funcName, sfunc, usage, minArgs, maxArgs);
+}
+
+ConsoleConstructor::ConsoleConstructor(LPCSTR className, LPCSTR funcName, IntCallback		ifunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandI(className, funcName, ifunc, usage, minArgs, maxArgs);
+}
+
+ConsoleConstructor::ConsoleConstructor(LPCSTR className, LPCSTR funcName, FloatCallback	    ffunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandF(className, funcName, ffunc, usage, minArgs, maxArgs);
+}
+
+ConsoleConstructor::ConsoleConstructor(LPCSTR className, LPCSTR funcName, VoidCallback	    vfunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandV(className, funcName, vfunc, usage, minArgs, maxArgs);
+}
+
+ConsoleConstructor::ConsoleConstructor(LPCSTR className, LPCSTR funcName, BoolCallback	    bfunc, LPCSTR usage, INT32 minArgs, INT32 maxArgs)
+{
+    Con::addCommandB(className, funcName, bfunc, usage, minArgs, maxArgs);
+}

@@ -1,5 +1,6 @@
 
 #include "blv20intrn.h"
+#include <stdlib.h>
 
 // HEX ADDRESS OF smShadowMask: 0077618c
 #define SMSHADOWMASK_PTR (0x0077618c)
@@ -7,16 +8,20 @@
 #define FXBRICKOBJECTTYPE 33554432
 #define SHADOWMASK 12 | FXBRICKALWAYSOBJECTTYPE | FXBRICKOBJECTTYPE
 
-volatile DWORD gMaskVariable = SHADOWMASK;
+volatile static DWORD gMaskVariable = SHADOWMASK;
 
-ConsoleFunction(sendFunnyMessage, void, 2, 2, "(string message)") {
+/*
+ConsoleFunction(resetShadowMask, void, 2, 2, "(bool shadeBricks)") {
     argc;
-    Con::printf(argv[1]);
+    bool arg = !_stricmp(argv[1], "true") || atof(argv[1]);
+    DWORD mask = arg ? SHADOWMASK : 12;
+    BL::write(SMSHADOWMASK_PTR, &mask);
+    Con::printf("Shadowmask set to %u", mask);
 }
+*/
 
 void patchShadows() {
-
-    Con::addVariable("$Pref::Client::ShadowMask", TypeS32, (LPVOID)(BL::imageBase + SMSHADOWMASK_PTR));
+    Con::addVariable("$Pref::Client::ShadowMask", TypeS32, (LPVOID)(SMSHADOWMASK_PTR));
     BL::write(SMSHADOWMASK_PTR, &gMaskVariable);
 }
 
@@ -28,7 +33,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        BL::init(hModule);
+        //BL::init(hModule);
         patchShadows();
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
